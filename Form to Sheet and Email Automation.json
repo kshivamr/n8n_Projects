@@ -1,0 +1,228 @@
+{
+  "name": "Form to Sheet and Email Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Contact Form",
+        "formDescription": "Please fill out this form to get in touch",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "placeholder": "Enter your full name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "placeholder": "Enter your email address",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Message",
+              "fieldType": "textarea",
+              "placeholder": "Enter your message",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bee06d2a-b7da-4743-8047-046d06ad4739",
+      "name": "Form Submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        1264,
+        544
+      ],
+      "webhookId": "0ac004d1-0aaa-4e5f-b194-5c8849a83967"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "sheetId",
+              "value": "YOUR_GOOGLE_SHEET_ID",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "notificationEmail",
+              "value": "YOUR_EMAIL@example.com",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "emailSubject",
+              "value": "New Form Submission Received",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "5240faa9-55fd-48f6-9342-dcab48193e46",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1488,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Workflow Configuration').first().json.notificationEmail }}",
+        "subject": "={{ $('Workflow Configuration').first().json.emailSubject }}",
+        "emailType": "text",
+        "message": "=Name:{{ $json.Name }}\nEmail_id:{{ $json.Email_Id }}\nAbout : {{ $json.About }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "d03bf8ee-3285-416c-8fe3-50f10c18865a",
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1936,
+        544
+      ],
+      "webhookId": "6ae6eaee-6b8f-40a6-8f3c-90413b0ccc3c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tpy4tYoxyzyvaOW5",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Pf1n1AUMDT4G4HXAwNbesiqZtQiFOJhxlidtxgaILqY",
+          "mode": "list",
+          "cachedResultName": "New_joiner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Pf1n1AUMDT4G4HXAwNbesiqZtQiFOJhxlidtxgaILqY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Pf1n1AUMDT4G4HXAwNbesiqZtQiFOJhxlidtxgaILqY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Email_Id": "={{ $json.Email }}",
+            "About": "={{ $json.Message }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email_Id",
+              "displayName": "Email_Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "About",
+              "displayName": "About",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1696,
+        544
+      ],
+      "id": "718bcf59-789d-4f47-ac2d-c7ad909d15ea",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6UyZW7wudYD46gJp",
+          "name": "Google Sheets account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Form Submission": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send Email Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "48e1b48c-251b-4893-8443-2e780f4f31d2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "055d818f6ba87d8059be060bac45bcc3c8e3e4c3fad118b2d0945ba400905e83"
+  },
+  "id": "14XqIFx64Axq2Tuk",
+  "tags": []
+}
