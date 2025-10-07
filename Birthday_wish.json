@@ -1,0 +1,159 @@
+{
+  "name": "Birthday_wish",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 9 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -416,
+        64
+      ],
+      "id": "50744de3-9f20-40ba-a89d-c16f12cf7e67",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eAHc8RELWxWpKziz3nLT3XA-rYf9ms7NgkNx1spjDlc",
+          "mode": "list",
+          "cachedResultName": "Birthday_sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eAHc8RELWxWpKziz3nLT3XA-rYf9ms7NgkNx1spjDlc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eAHc8RELWxWpKziz3nLT3XA-rYf9ms7NgkNx1spjDlc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -128,
+        64
+      ],
+      "id": "d83b99df-a8b5-4ebd-a90e-e17e093d3f0a",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "glOgEpoa0KCUK3CU",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const today = new Date();\nconst results = [];\n\n// Loop through each row\nfor (const item of items) {\n  if (!item.json.Birthday) continue;\n\n  const parts = item.json.Birthday.split(\"/\"); // MM/DD/YYYY\n  if (parts.length !== 3) continue;\n\n  const [month, day, year] = parts.map(Number);\n  const birthday = new Date(year, month - 1, day);\n\n  // If birthday is today\n  if (birthday.getDate() === today.getDate() && birthday.getMonth() === today.getMonth()) {\n    // Repeat this item 50 times\n    for (let i = 0; i < 50; i++) {\n      results.push(item);\n    }\n  }\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        64
+      ],
+      "id": "8c490581-7b5a-4b1e-8318-d96216ec7783",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.NAME }}s Birthday is Tomorrow 🎂",
+        "message": "=Hi {{ $('Get row(s) in sheet').item.json.NAME }} ,\n\nWishing you a very Happy Birthday! 🎂🎈\n\nBest regards,\nShivam\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        336,
+        64
+      ],
+      "id": "c67f320b-82ff-42ad-a80a-9e408b5afdb8",
+      "name": "Send a message",
+      "webhookId": "5a931929-73e0-4ac0-9c22-cccd98c4caff",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tpy4tYoxyzyvaOW5",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        -112
+      ],
+      "id": "021c13ff-f247-442e-bbff-dfe826e07858",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8a6b6a4f-627c-4098-8506-ffc99e58d9c8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "055d818f6ba87d8059be060bac45bcc3c8e3e4c3fad118b2d0945ba400905e83"
+  },
+  "id": "SkBYguMzGhushiRV",
+  "tags": []
+}
